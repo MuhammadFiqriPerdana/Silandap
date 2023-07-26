@@ -1,0 +1,39 @@
+<?php
+                    $query_srt_msk = "SELECT * FROM tbl_srt_msk";
+                    $result_srt_msk = mysqli_query($conn, $query_srt_msk);
+                    $jml_srt_msk = mysqli_num_rows($result_srt_msk);
+
+                    ?>
+
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Nomor</th>
+                                    <th>Tanggal</th>
+                                    <th>Lampiran</th>
+                                    <th>Hal</th>
+                                    <th>Dari</th>
+                                    <th>Tgl Terima</th>
+                                    <th>Oleh</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row_srt_msk_2 = mysqli_fetch_assoc($result_srt_msk2)) { ?>
+                                    <tr>
+                                        <td>
+                                            <a href="../assets/files/<?php echo $row_srt_msk_2["file"] ?>" target="_blank"><?php echo $row_srt_msk_2["no_srt"] ?> <i class="lni lni-link"></i></a>
+                                        </td>
+                                        <td><?php echo $row_srt_msk_2["tgl_srt"] ?></td>
+                                        <td><?php echo $row_srt_msk_2["lampiran"] ?></td>
+                                        <td><?php echo $row_srt_msk_2["hal"] ?></td>
+                                        <td><?php echo $row_srt_msk_2["dari"] ?></td>
+                                        <td><?php echo $row_srt_msk_2["tgl_input"] ?></td>
+                                        <td><?php echo $row_srt_msk_2["nm_user"] ?></td>
+                                    </tr>
+                                <?php } ?>
+
+                            </tbody>
+                        </table>
+                    </div>
