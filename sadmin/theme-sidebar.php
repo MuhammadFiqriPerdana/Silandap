@@ -26,6 +26,7 @@
             <ul>
                 <li> <a href="alat.php"><i class="bx bx-right-arrow-alt"></i>Data Alat</a></li>
                 <li> <a href="bahan.php"><i class="bx bx-right-arrow-alt"></i>Data Bahan</a></li>
+                <li> <a href="siswa.php"><i class="bx bx-right-arrow-alt"></i>Data Siswa</a></li>
             </ul>
         </li>
         <li>

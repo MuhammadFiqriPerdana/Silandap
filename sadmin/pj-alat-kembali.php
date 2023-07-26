@@ -6,49 +6,64 @@ if ($_SESSION["level"] == 2) {
     exit;
 }
 include "../koneksi.php";
+$id_pj = $_GET['id'];
 
-if (isset($_POST["submit"])){
-    $id_siswa = $_POST["id_siswa"];
+$query_pj = "SELECT * FROM tbl_peminjaman pj 
+INNER JOIN tbl_user u ON u.id_user = pj.id_user INNER JOIN 
+tbl_barang b ON pj.id_barang = b.id_barang";
+$result_pj = mysqli_query($conn, $query_pj);
+$row_pj = mysqli_fetch_assoc($result_pj);
+
+if (isset($_POST["submit"])) {
+
+
+    
     $id_barang = $_POST["id_barang"];
+    $kondisi = $_POST["kondisi"];
+    $tgl_kembali = $_POST["tgl_kembali"];
+    $waktu_kembali = $_POST["waktu_kembali"];
+    $query = "INSERT INTO tbl_pengembalian VALUES (NULL, $id_pj, '$tgl_kembali', '$waktu_kembali', '$kondisi')";
+    $result = mysqli_query($conn, $query);
+    $row_pj = mysqli_fetch_assoc($result_pj);
+    $last_id = mysqli_insert_id($conn);
+
+    $selSto = mysqli_query($conn, "SELECT * FROM tbl_barang WHERE id_barang='$id_barang'");
+    $sto    = mysqli_fetch_array($selSto);
+    $stok    = $sto['stok'];
     $jumlah = $_POST["jumlah"];
-    $tgl_pinjam = $_POST["tgl_pinjam"];
-    $waktu_pinjam = $_POST["waktu_pinjam"];
-    $selSto = mysqli_query($conn, "SELECT * FROM tbl_barang WHERE id_barang='". $_POST['id_barang'] ."'");
-    $sto = mysqli_fetch_array($selSto);
-    $stok = $sto['stok'];
-    $sisa = $stok - $jumlah;
-    if($stok < $jumlah){?>
-    <script>
-        alert('Oops! Jumlah Barang Yang Dipinjam Melebih Stok Yang Tersedia');
-        document.location='pj-alat-tambah.php';
-    </script>
-    <?php
-    } else {
-        $sql_simpan = "INSERT INTO tbl_peminjaman(id_peminjaman, id_user, id_barang, jumlah, tgl_pinjam, waktu_pinjam, status_verifikasi) VALUES (
-            '" .NULL. "',
-            '" .$id_siswa. "',
-            '" .$id_barang. "',
-            '" .$jumlah. "',
-            '" .$tgl_pinjam. "',
-            '" .$waktu_pinjam. "',
-            'Sedang  Dipinjam')";
-        $upstok = mysqli_query($conn, "UPDATE tbl_barang SET stok='$sisa' WHERE id_barang='" .$_POST['id_barang']. "'");
-        $query_simpan = mysqli_query($conn, $sql_simpan, $upstok);
+    $kembali = $stok + $jumlah;
+    $upstock = "UPDATE tbl_barang SET stok='$kembali' WHERE id_barang = '$id_barang'";
+    $result_stok = mysqli_query($conn, $upstock);
+    
+    $berita_acara = "INSERT tb_berita_acara_pengembalian (id_berita_acara_pengembalian, id_pengembalian) VALUES ('NULL', '$last_id')";
+    $query_berita_acara = mysqli_query($conn, $berita_acara);
+
+    if($kondisi == 'Rusak'){
+        $upkon = mysqli_query($conn, "SELECT * FROM tbl_barang WHERE id_barang='$id_barang'");
+        $kon = mysqli_fetch_array($upkon);
+        $kondisi1 = $kon['kondisi'];
+        $updatekondisi = "UPDATE tbl_barang SET kondisi='$kondisi' WHERE id_barang='$id_barang'";
+        $result_kondisi = mysqli_query($conn, $updatekondisi);
+        
+        
     }
-    if($query_simpan){
-        ?>
-            <script>
-            alert('Tambah Data Berhasil');
-            document.location='pj-alat.php';
-            </script>
-        <?php
-    }else {
-        ?>
-            <script>
-            alert('Tambah Data Gagal');
-            document.location='pj-alat-tambah.php';
-        </script>
-        <?php
+
+
+    
+        
+
+
+
+    if ($result) {
+        echo "<script>
+            alert('Data berhasil disimpan...!');
+            document.location.href = 'pj-alat.php';
+        </script>";
+    } else {
+        echo "<script>
+            alert('Data gagal disimpan...!');
+            history.go(-1);
+        </script>";
     }
 }
 ?>
@@ -78,7 +93,8 @@ if (isset($_POST["submit"])){
     <link rel="stylesheet" href="../assets/css/dark-theme.css" />
     <link rel="stylesheet" href="../assets/css/semi-dark.css" />
     <link rel="stylesheet" href="../assets/css/header-colors.css" />
-    <title>Simawar - Tambah Data Peminjaman Alat</title>
+    
+    <title>Simawar - Pengembalian Alat</title>
 </head>
 
 <body>
@@ -98,8 +114,8 @@ if (isset($_POST["submit"])){
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0 p-0">
                                 <li class="breadcrumb-item"><a href="index.php"><i class="bx bx-home-alt"></i></a></li>
-                                <li class="breadcrumb-item"><a href="index.php">Data Alat</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Tambah Alat</li>
+                                <li class="breadcrumb-item"><a href="pj-alat.php">Data Peminjaman</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Pengembalian Alat</li>
                             </ol>
                         </nav>
                     </div>
@@ -107,65 +123,38 @@ if (isset($_POST["submit"])){
                 <!--end breadcrumb-->
                 <div class="row">
                     <div class="col-xl-12 mx-auto">
-                        <h6 class="mb-0 text-uppercase">Data Peminjaman Alat</h6>
+                        <h6 class="mb-0 text-uppercase">Data Peminjaman</h6>
                         <hr />
                         <div class="card border-top border-0 border-4 border-primary">
                             <div class="card-body px-5 pb-5">
                                 <div class="card-title d-flex align-items-center">
                                     <div><i class="bx bx-plus me-1 font-22 text-primary"></i>
                                     </div>
-                                    <h5 class="mb-0 text-primary">Tambah Peminjaman Alat</h5>
+                                    <h5 class="mb-0 text-primary">Pengembalian Alat</h5>
                                 </div>
                                 <hr>
                                 <form class="row g-3" method="POST" target="">
-                                <div class="col-12">
-                                        <label for="id_siswa" class="form-label">Siswa</label>
-                                        <select name="id_siswa" id="id_siswa" class="form-control select2" style="width: 100%;">
-									<option selected="selected">-- Pilih --</option>
-									<?php
-									
-									$query = "select * from tbl_SISWA";
-									$hasil = mysqli_query($conn, $query);
-									while ($row = mysqli_fetch_array($hasil)) {
-									?>
-										<option value="<?php echo $row['id_siswa'] ?>">
-											<?php echo $row['nama_siswa'] ?> -
-											<?php echo $row['kelas'] ?>
-										</option>
-									<?php
-									}
-									?>
-								</select>
+                                    <div class="col-12">
+                                        <label for="id_user" class="form-label">Nama Peminjam</label>
+                                        <input type="text" class="form-control" name="id_user" id="id_user" value="<?php echo $row_pj["nm_user"] ?>" readonly>
+                                    </div>
+                                        <input type="hidden" class="form-control" name="id_barang" id="id_barang" value="<?php echo $row_pj["id_barang"] ?> " readonly>
+                                        <input type="hidden" class="form-control" name="jumlah" id="jumlah" value="<?php echo $row_pj["jumlah"] ?>" readonly>
+                                        <div class="col-12">
+                                        <label class="form-label">Kondisi Alat</label>
+                                        <select name="kondisi" id="kondisi" class="form-control select2" style="width: 100%;">
+                                        <option selected="selected">-- Pilih --</option>
+                                        <option value="Baik">Baik</option>
+                                        <option value="Rusak">Rusak</option>
+                                        </select>
                                     </div>
                                     <div class="col-12">
-                                        <label for="id_barang" class="form-label">Barang</label>
-                                        <select name="id_barang" id="id_barang" class="form-control select2" style="width: 100%;">
-									<option selected="selected">-- Pilih --</option>
-									<?php
-									
-									$query = "select * from tbl_barang WHERE kategori = 'Alat' AND kondisi = 'Baik'";
-									$hasil = mysqli_query($conn, $query);
-									while ($row = mysqli_fetch_array($hasil)) {
-									?>
-										<option value="<?php echo $row['id_barang'] ?>">
-											<?php echo $row['nama_barang'] ?>
-										</option>
-									<?php
-									}
-									?>
-								</select>
+                                        <label class="form-label">Tanggal Kembali</label>
+                                        <input type="date" class="form-control" name="tgl_kembali" id="tgl_kembali" required>
                                     </div>
                                     <div class="col-12">
-                                        <label for="jumlah" class="form-label">Jumlah</label>
-                                        <input type="text" class="form-control" name="jumlah" id="jumlah" placeholder="Jumlah" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="tgl_pinjam" class="form-label">Tanggal Pinjam</label>
-                                        <input type="date" class="form-control" name="tgl_pinjam" id="tgl_pinjam" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="waktu_pinjam" class="form-label">Jam Pelajaran Pinjam</label>
-                                        <input type="text" class="form-control" name="waktu_pinjam" id="waktu_pinjam" placeholder="Jam Pelajaran" required>
+                                        <label for="waktu_kembali" class="form-label">Jam Pelajaran Kembali</label>
+                                        <input type="text" class="form-control" name="waktu_kembali" id="waktu_kembali" placeholder="Jam Pelajaran" required>
                                     </div>
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary px-5" name="submit">Simpan</button>

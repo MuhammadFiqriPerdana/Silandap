@@ -7,8 +7,8 @@ if ($_SESSION["level"] == 2) {
 }
 include "../koneksi.php";
 
-$query_pj_alat = "SELECT * FROM tbl_peminjaman pj INNER JOIN tbl_barang b ON pj.id_barang = b.id_barang INNER JOIN tb_siswa ts ON  LEFT JOIN tbl_pengembalian k on pj.id_peminjaman = k.id_pin WHERE b.kategori='Alat'";
-$result_pj_alat = mysqli_query($conn, $query_pj_alat);
+$query_alat = "SELECT * FROM tbl_siswa";
+$result_alat = mysqli_query($conn, $query_alat);
 
 ?>
 
@@ -37,8 +37,7 @@ $result_pj_alat = mysqli_query($conn, $query_pj_alat);
     <link rel="stylesheet" href="../assets/css/dark-theme.css" />
     <link rel="stylesheet" href="../assets/css/semi-dark.css" />
     <link rel="stylesheet" href="../assets/css/header-colors.css" />
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <title>Silandap - Peminjaman Alat</title>
+    <title>Silandap - Data Siswa</title>
 </head>
 
 <body>
@@ -58,46 +57,44 @@ $result_pj_alat = mysqli_query($conn, $query_pj_alat);
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0 p-0">
                                 <li class="breadcrumb-item"><a href="index.php"><i class="bx bx-home-alt"></i></a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Data Peminjaman Alat</li>
+                                <li class="breadcrumb-item active" aria-current="page">Data Siswa</li>
                             </ol>
                         </nav>
                     </div>
                 </div>
                 <!--end breadcrumb-->
-                <h5 class="my-4 text-uppercase">Data Peminjaman Alat</h5>
+                <h5 class="my-4 text-uppercase">Data Siswa</h5>
                 <div class="col">
-                    <a href="pj-alat-tambah.php" class="btn btn-primary"><i class='bx bx-plus mr-1'></i>Tambah Data</a>
+                    <a href="siswa-tambah.php" class="btn btn-primary"><i class='bx bx-plus mr-1'></i>Tambah Data</a>
                 </div>
+                <hr />
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="example2" class="table table-hover table-bordered">
-                                
                                 <thead class="table-primary">
                                     <tr>
                                         <th>Action</th>
-                                        <th>Nama Peminjam</th>
-                                        <th>Nama Barang</th>
-                                        <th>Jumlah</th>
-                                        <th>Tanggal</th>
-                                        <th>Jam Pelajaran Pinjam</th>
-                                        <th>Status</th>
+                                        <th>NISN</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Kelas</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($row_pj_alat = mysqli_fetch_assoc($result_pj_alat)) { ?>
+                                    <?php while ($row_alat = mysqli_fetch_assoc($result_alat)) { ?>
                                         <tr>
                                             <td>
                                                 <div class="d-flex order-actions">
-                                                    <a href="pj_alat_kembali.php?id=<?php echo $row_pj_alat['id_peminjaman'] ?>" title="Verifikasi" class="text-light bg-success border-0  btn btn-success <?= $row_pj_alat['status_verifikasi'] == 'Sedang Dipinjam' ? 'disabled' : '' ?>"><iconify-icon icon="icon-park:return"></iconify-icon></a>
+                                                    <a href="siswa-edit.php?id=<?php echo $row_alat['id_siswa'] ?>" class="text-light bg-success border-0"><i class='bx bxs-edit'></i></a>
+                                                    <a href="siswa-hapus.php?id=<?php echo $row_alat["id_siswa"] ?>" class="ms-4 text-light bg-warning border-0" onClick="return confirm('Apakah anda yakin ingin menghapus data ini...?')"><i class='bx bxs-trash'></i></a>
                                                 </div>
-                                            <td><?php echo $row_pj_alat["nama_siswa"] ?></td>
-                                            <td><?php echo $row_pj_alat["nama_barang"] ?></td>
-                                            <td><?php echo $row_pj_alat["jumlah"] ?></td>
-                                            <td><?php echo $row_pj_alat["tgl_pinjam"] ?></td>
-                                            <td><?php echo $row_pj_alat["waktu_pinjam"] ?></td>
-                                            <td><?php echo $row_pj_alat["status_verifikasi"] ?></td>
                                             </td>
+                                            <td><?php echo $row_alat["nisn"] ?></td>
+                                            <td><?php echo $row_alat["nama_siswa"] ?></td>
+                                            <td><?php echo $row_alat["kelas"] ?></td>
+                                            
+                                            
                                         </tr>
                                     <?php } ?>
                                 </tbody>
